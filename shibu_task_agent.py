@@ -89,6 +89,7 @@ class ShibuTaskAgent:
     def parse_day_of_week(self, text: str, base_date: datetime) -> Optional[str]:
         """曜日指定を解析"""
         from datetime import timedelta
+        import re
         
         day_names = {
             '月曜': 0, '月曜日': 0, 'げつよう': 0,
@@ -102,8 +103,13 @@ class ShibuTaskAgent:
         
         text_lower = text.lower()
         
+        # より厳密なマッチング - 「明後日」「明日」「明々後日」などが誤認されないように
         for day, target_day in day_names.items():
-            if day in text_lower:
+            # 「明」で始まる単語内での曜日は除外
+            pattern = r'(^|[^ぁ-ん明後昨々])' + re.escape(day) + r'([^ぁ-んの]|$)'
+            has_min_pattern = re.search(r'明[々後日]+', text_lower)
+            
+            if re.search(pattern, text_lower) and not has_min_pattern:
                 result = base_date
                 current_day = result.weekday()
                 days_to_add = target_day - current_day

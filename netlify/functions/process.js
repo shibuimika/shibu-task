@@ -104,8 +104,13 @@ class ShibuTaskAgent {
 
         const textLower = text.toLowerCase();
         
+        // より厳密なマッチング - 「明後日」「明日」「明々後日」などが誤認されないように
         for (const [day, targetDay] of Object.entries(dayNames)) {
-            if (textLower.includes(day)) {
+            // 「明」で始まる単語内での曜日は除外
+            const regex = new RegExp(`(^|[^ぁ-ん明後昨々])${day}([^ぁ-んの]|$)`, 'g');
+            const hasMinPattern = /明[々後日]+/.test(textLower);
+            
+            if (regex.test(textLower) && !hasMinPattern) {
                 const result = new Date(baseDate);
                 const currentDay = result.getDay();
                 let daysToAdd = targetDay - currentDay;
