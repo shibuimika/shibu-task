@@ -10,19 +10,23 @@ class AdvancedDateParser {
     }
     
     setupPatterns() {
-        // 時間パターン
+        // 時間パターン（順序重要：具体的なものから先に）
         this.timePatterns = [
+            // 午前・午後（数値付き）を最優先
             { pattern: /午前(\d{1,2})時/, func: (h) => parseInt(h) },
-            { pattern: /午後(\d{1,2})時/, func: (h) => parseInt(h) === 12 ? 12 : parseInt(h) + 12 },
+            { pattern: /午後(\d{1,2})時/, func: (h) => parseInt(h) < 12 ? parseInt(h) + 12 : parseInt(h) },
             { pattern: /朝(\d{1,2})時/, func: (h) => parseInt(h) },
             { pattern: /昼(\d{1,2})時/, func: (h) => parseInt(h) === 12 ? 12 : parseInt(h) + 12 },
             { pattern: /夜(\d{1,2})時/, func: (h) => parseInt(h) < 12 ? parseInt(h) + 12 : parseInt(h) },
-            { pattern: /朝/, func: () => 9 },
-            { pattern: /昼/, func: () => 12 },
+            // 数値指定（単体）
+            { pattern: /(\d{1,2})時/, func: (h) => parseInt(h) },
+            // 文字指定（順序重要：長いものから先に）
+            { pattern: /深夜/, func: () => 23 },
             { pattern: /午後/, func: () => 15 },
             { pattern: /夕方/, func: () => 17 },
-            { pattern: /夜/, func: () => 19 },
-            { pattern: /深夜/, func: () => 23 }
+            { pattern: /朝/, func: () => 9 },
+            { pattern: /昼/, func: () => 12 },
+            { pattern: /夜/, func: () => 19 }
         ];
         
         // 数値相対パターン

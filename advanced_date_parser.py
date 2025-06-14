@@ -14,21 +14,24 @@ class AdvancedDateParser:
     
     def setup_patterns(self):
         """パターンの初期化"""
-        # 時間パターン
-        self.time_patterns = {
-            # 午前・午後
-            r'午前(\d{1,2})時': lambda h: int(h),
-            r'午後(\d{1,2})時': lambda h: int(h) + 12 if int(h) != 12 else 12,
-            r'朝(\d{1,2})時': lambda h: int(h),
-            r'昼(\d{1,2})時': lambda h: int(h) + 12 if int(h) != 12 else 12,
-            r'夜(\d{1,2})時': lambda h: int(h) + 12 if int(h) < 12 else int(h),
-            r'朝': lambda: 9,
-            r'昼': lambda: 12,
-            r'午後': lambda: 15,
-            r'夕方': lambda: 17,
-            r'夜': lambda: 19,
-            r'深夜': lambda: 23,
-        }
+        # 時間パターン（順序重要：具体的なものから先に）
+        self.time_patterns = [
+            # 午前・午後（数値付き）を最優先
+            (r'午前(\d{1,2})時', lambda h: int(h)),
+            (r'午後(\d{1,2})時', lambda h: int(h) + 12 if int(h) < 12 else int(h)),
+            (r'朝(\d{1,2})時', lambda h: int(h)),
+            (r'昼(\d{1,2})時', lambda h: int(h) + 12 if int(h) != 12 else 12),
+            (r'夜(\d{1,2})時', lambda h: int(h) + 12 if int(h) < 12 else int(h)),
+            # 数値指定（単体）
+            (r'(\d{1,2})時', lambda h: int(h)),
+            # 文字指定（順序重要：長いものから先に）
+            (r'深夜', lambda: 23),
+            (r'午後', lambda: 15),
+            (r'夕方', lambda: 17),
+            (r'朝', lambda: 9),
+            (r'昼', lambda: 12),
+            (r'夜', lambda: 19),
+        ]
         
         # 数値相対パターン
         self.numeric_relative_patterns = {
@@ -278,7 +281,7 @@ class AdvancedDateParser:
     
     def _parse_time(self, text: str) -> int:
         """時間を解析（デフォルトは12時）"""
-        for pattern, calc_func in self.time_patterns.items():
+        for pattern, calc_func in self.time_patterns:
             match = re.search(pattern, text)
             if match:
                 try:
