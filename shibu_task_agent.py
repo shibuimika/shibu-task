@@ -9,12 +9,14 @@ import json
 import re
 from datetime import datetime
 from typing import List, Dict, Any, Optional
+from advanced_date_parser import AdvancedDateParser
 
 
 class ShibuTaskAgent:
     def __init__(self):
         self.tasks: List[Dict[str, Any]] = []
         self.next_id = 1
+        self.date_parser = AdvancedDateParser()
     
     def get_next_id(self) -> int:
         """次のタスクIDを取得"""
@@ -23,23 +25,17 @@ class ShibuTaskAgent:
         return max(task['id'] for task in self.tasks) + 1
     
     def parse_date(self, text: str) -> Optional[str]:
-        """テキストから日付を解析してISO8601形式で返す"""
+        """テキストから日付を解析してISO8601形式で返す（高度パーサー使用）"""
         from datetime import timedelta
         
+        # 高度パーサーを使用
+        result = self.date_parser.parse(text)
+        if result:
+            return result
+        
+        # フォールバック：デフォルトは今日から1週間後
         today = datetime.now()
         today = today.replace(hour=12, minute=0, second=0, microsecond=0)
-        
-        # 相対日付パターンの処理（優先）
-        relative_date = self.parse_relative_date(text, today)
-        if relative_date:
-            return relative_date
-            
-        # 絶対日付パターンの処理
-        absolute_date = self.parse_absolute_date(text, today)
-        if absolute_date:
-            return absolute_date
-        
-        # デフォルトは今日から1週間後
         default_date = today + timedelta(days=7)
         return default_date.strftime("%Y-%m-%dT12:00")
     
