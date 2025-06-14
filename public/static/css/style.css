@@ -232,4 +232,126 @@ body {
 #userInfo {
     animation: fadeIn 0.5s ease-in;
     font-size: 0.8rem;
+}
+
+/* Task Checkbox Styles */
+.task-checkbox-container {
+    position: relative;
+    margin-top: 4px;
+}
+
+.task-checkbox {
+    opacity: 0;
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.task-checkbox-label {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.task-checkbox-label i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    color: white;
+    font-size: 10px;
+    transition: transform 0.2s ease;
+}
+
+.task-checkbox:checked + .task-checkbox-label {
+    background: linear-gradient(135deg, var(--success-color), #22c55e);
+    border-color: var(--success-color);
+    transform: scale(1.1);
+}
+
+.task-checkbox:checked + .task-checkbox-label i {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.task-checkbox-label:hover {
+    border-color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+/* Completed Task Styles */
+.task-card.completed {
+    opacity: 0.7;
+    background: linear-gradient(135deg, #f8f9ff, #f0f4f8);
+}
+
+.completed-text {
+    text-decoration: line-through;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+}
+
+.task-card.completed .task-meta {
+    opacity: 0.8;
+}
+
+/* Task Card Animation */
+.task-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.task-card.completed:hover {
+    transform: translateY(-1px);
+}
+
+.task-card:active {
+    transform: scale(0.98);
+}
+
+/* Status Change Animation */
+.task-status-changing {
+    transform: scale(0.98);
+    transition: transform 0.2s ease;
+}
+
+.task-header {
+    align-items: flex-start;
+}
+
+.task-content {
+    min-height: 24px;
+}
+
+/* Success Animation */
+@keyframes checkmarkPop {
+    0% { transform: translate(-50%, -50%) scale(0); }
+    50% { transform: translate(-50%, -50%) scale(1.2); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.task-checkbox:checked + .task-checkbox-label i {
+    animation: checkmarkPop 0.3s ease;
+}
+
+/* Task Completion Celebration */
+@keyframes completionPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+.task-completed-animation {
+    animation: completionPulse 0.5s ease;
 } 

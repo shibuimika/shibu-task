@@ -297,12 +297,16 @@ class ShibuTaskApp {
                 card.classList.add('fade-in');
             }, index * 100);
         });
+
+        // チェックボックスのイベントリスナーを追加
+        this.attachTaskEventListeners(container);
     }
 
     createTaskCard(task) {
         const statusClass = task.status === '完了' ? 'completed' : 'pending';
         const statusBadgeClass = task.status === '完了' ? 'status-completed' : 'status-pending';
         const linkClass = this.getLinkClass(task.link);
+        const isCompleted = task.status === '完了';
         
         const dueDate = new Date(task.due);
         const formattedDate = dueDate.toLocaleDateString('ja-JP', {
@@ -314,10 +318,24 @@ class ShibuTaskApp {
         });
 
         return `
-            <div class="task-card ${statusClass}">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div class="task-title">${this.escapeHtml(task.title)}</div>
-                    <span class="status-badge ${statusBadgeClass}">${task.status}</span>
+            <div class="task-card ${statusClass}" data-task-id="${task.id}">
+                <div class="task-header d-flex align-items-start mb-2">
+                    <div class="task-checkbox-container me-3">
+                        <input type="checkbox" 
+                               class="task-checkbox" 
+                               id="task-${task.id}" 
+                               ${isCompleted ? 'checked' : ''}
+                               data-task-id="${task.id}">
+                        <label for="task-${task.id}" class="task-checkbox-label">
+                            <i class="fas fa-check"></i>
+                        </label>
+                    </div>
+                    <div class="task-content flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="task-title ${isCompleted ? 'completed-text' : ''}">${this.escapeHtml(task.title)}</div>
+                            <span class="status-badge ${statusBadgeClass}">${task.status}</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="task-meta">
                     <div class="mb-2">
@@ -466,6 +484,130 @@ class ShibuTaskApp {
         } catch (error) {
             console.error('Error clearing local tasks:', error);
         }
+    }
+
+    // ===== タスクステータス変更メソッド =====
+    attachTaskEventListeners(container) {
+        // チェックボックスのクリックイベント
+        const checkboxes = container.querySelectorAll('.task-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const taskId = parseInt(e.target.dataset.taskId);
+                const isCompleted = e.target.checked;
+                this.toggleTaskStatus(taskId, isCompleted);
+            });
+        });
+
+        // タスクカード全体のクリックイベント（チェックボックス以外）
+        const taskCards = container.querySelectorAll('.task-card');
+        taskCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                // チェックボックスやラベルがクリックされた場合は除外
+                if (e.target.closest('.task-checkbox-container')) {
+                    return;
+                }
+                
+                const taskId = parseInt(card.dataset.taskId);
+                const checkbox = card.querySelector('.task-checkbox');
+                
+                if (checkbox) {
+                    // チェックボックスの状態を切り替え
+                    checkbox.checked = !checkbox.checked;
+                    this.toggleTaskStatus(taskId, checkbox.checked);
+                }
+            });
+            
+            // カーソルをポインターに
+            card.style.cursor = 'pointer';
+        });
+    }
+
+    async toggleTaskStatus(taskId, isCompleted) {
+        const username = this.currentUser ? this.currentUser.username : 'anonymous';
+        
+        try {
+            // 視覚的フィードバック
+            const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+            if (taskCard) {
+                taskCard.classList.add('task-status-changing');
+            }
+
+            // ローカルストレージからタスクを取得・更新
+            const tasks = this.getLocalTasks(username);
+            const taskIndex = tasks.findIndex(task => task.id === taskId);
+            
+            if (taskIndex !== -1) {
+                tasks[taskIndex].status = isCompleted ? '完了' : '未着手';
+                
+                // ローカルストレージに保存
+                this.saveLocalTasks(username, tasks);
+                
+                // API呼び出し（任意：サーバー同期用）
+                await this.updateTaskStatusOnServer(taskId, tasks[taskIndex].status, username);
+                
+                // UIを即座に更新
+                this.displayTasks(tasks);
+                
+                // 完了アニメーション
+                if (isCompleted) {
+                    setTimeout(() => {
+                        const updatedCard = document.querySelector(`[data-task-id="${taskId}"]`);
+                        if (updatedCard) {
+                            updatedCard.classList.add('task-completed-animation');
+                            setTimeout(() => {
+                                updatedCard.classList.remove('task-completed-animation');
+                            }, 500);
+                        }
+                    }, 100);
+                }
+                
+                // 成功メッセージ
+                const message = isCompleted ? 
+                    `✅ タスク「${tasks[taskIndex].title}」を完了しました` : 
+                    `🔄 タスク「${tasks[taskIndex].title}」を未着手に戻しました`;
+                this.showMessage(message, 'success');
+            }
+
+        } catch (error) {
+            console.error('ステータス変更エラー:', error);
+            this.showMessage('❌ ステータス変更に失敗しました', 'error');
+            
+            // エラー時は元に戻す
+            const checkbox = document.querySelector(`[data-task-id="${taskId}"]`);
+            if (checkbox) {
+                checkbox.checked = !isCompleted;
+            }
+        }
+    }
+
+    async updateTaskStatusOnServer(taskId, status, username) {
+        try {
+            const response = await fetch('/api/update-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    taskId: taskId,
+                    status: status,
+                    user: username
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('サーバー更新に失敗しました');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.warn('サーバー同期エラー（ローカルは更新済み）:', error);
+            // サーバーエラーでもローカルは更新されているので続行
+        }
+    }
+
+    showMessage(message, type = 'info') {
+        // 既存のshowProcessResultメソッドを活用
+        this.showProcessResult(message, type);
     }
 }
 
