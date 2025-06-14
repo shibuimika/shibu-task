@@ -412,6 +412,77 @@ body {
     color: var(--dark-text);
 }
 
+/* Handle .bg-light in dark mode */
+.dark-mode .bg-light {
+    background-color: var(--dark-card-bg) !important; /* Use !important to override Bootstrap's .bg-light */
+    color: var(--dark-text);
+}
+
+.dark-mode .card-header h5,
+.dark-mode .card-header h6,
+.dark-mode .card-header .fas { /* For FontAwesome icons in headers if any */
+    color: var(--dark-text);
+}
+
+/* Style .btn-primary in dark mode */
+.dark-mode .btn-primary {
+    background-color: var(--dark-primary-color);
+    border-color: var(--dark-primary-color);
+    color: var(--dark-bg); /* Ensuring text is dark enough for light purple bg */
+}
+.dark-mode .btn-primary:hover {
+    background-color: var(--dark-secondary-color);
+    border-color: var(--dark-secondary-color);
+    color: var(--dark-bg); /* Ensuring text is dark enough for light cyan bg */
+}
+
+/* Style .btn-outline-secondary in dark mode */
+.dark-mode .btn-outline-secondary {
+    color: var(--dark-text);
+    border-color: var(--dark-border-color);
+}
+.dark-mode .btn-outline-secondary:hover {
+    background-color: var(--dark-secondary-color);
+    color: var(--dark-bg); /* Text becomes dark for contrast on cyan bg */
+    border-color: var(--dark-secondary-color);
+}
+/* Specific for voice button when recording */
+.dark-mode .btn-danger.voice-recording {
+     color: var(--dark-text); /* Ensure text is light on danger background */
+}
+
+/* Style .btn-outline-primary in dark mode */
+.dark-mode .btn-outline-primary {
+    color: var(--dark-primary-color);
+    border-color: var(--dark-primary-color);
+}
+.dark-mode .btn-outline-primary:hover {
+    background-color: var(--dark-primary-color);
+    color: var(--dark-bg); /* Text becomes dark for contrast on purple bg */
+}
+
+/* Style .btn-outline-light in dark mode */
+.dark-mode .btn-outline-light {
+    color: var(--dark-text);
+    border-color: var(--dark-text);
+}
+.dark-mode .btn-outline-light:hover {
+    background-color: var(--dark-text);
+    color: var(--dark-bg); /* Text becomes dark */
+}
+
+/* Alerts in dark mode */
+.dark-mode .alert-info {
+    background-color: var(--dark-secondary-color);
+    color: var(--dark-bg); /* Dark text for light cyan bg */
+    border-color: var(--dark-primary-color);
+}
+.dark-mode .alert-danger {
+    background-color: var(--danger-color);
+    color: var(--dark-text);
+    border-color: #ff0000; /* Darker red for border */
+}
+
 .dark-mode .task-meta {
     color: #a0a0a0; /* Lighter gray for meta text */
 }
