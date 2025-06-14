@@ -24,7 +24,104 @@ class ShibuTaskAgent:
     
     def parse_date(self, text: str) -> Optional[str]:
         """テキストから日付を解析してISO8601形式で返す"""
-        # 「○月△日」のパターンを検索
+        from datetime import timedelta
+        
+        today = datetime.now()
+        today = today.replace(hour=12, minute=0, second=0, microsecond=0)
+        
+        # 相対日付パターンの処理（優先）
+        relative_date = self.parse_relative_date(text, today)
+        if relative_date:
+            return relative_date
+            
+        # 絶対日付パターンの処理
+        absolute_date = self.parse_absolute_date(text, today)
+        if absolute_date:
+            return absolute_date
+        
+        # デフォルトは今日から1週間後
+        default_date = today + timedelta(days=7)
+        return default_date.strftime("%Y-%m-%dT12:00")
+    
+    def parse_relative_date(self, text: str, base_date: datetime) -> Optional[str]:
+        """相対日付表現を解析"""
+        from datetime import timedelta
+        
+        text_lower = text.lower()
+        result = base_date
+        
+        # 今日・明日・明後日
+        if '今日' in text_lower or 'きょう' in text_lower:
+            return result.strftime("%Y-%m-%dT12:00")
+            
+        if '明日' in text_lower or 'あした' in text_lower or 'あす' in text_lower:
+            result = result + timedelta(days=1)
+            return result.strftime("%Y-%m-%dT12:00")
+            
+        if '明後日' in text_lower or 'あさって' in text_lower:
+            result = result + timedelta(days=2)
+            return result.strftime("%Y-%m-%dT12:00")
+        
+        # 曜日指定
+        day_of_week_result = self.parse_day_of_week(text, base_date)
+        if day_of_week_result:
+            return day_of_week_result
+            
+        # 週単位の指定
+        if '来週' in text_lower or 'らいしゅう' in text_lower:
+            result = result + timedelta(days=7)
+            return result.strftime("%Y-%m-%dT12:00")
+            
+        if '再来週' in text_lower or 'さらいしゅう' in text_lower:
+            result = result + timedelta(days=14)
+            return result.strftime("%Y-%m-%dT12:00")
+            
+        # 月単位の指定
+        if '来月' in text_lower or 'らいげつ' in text_lower:
+            if result.month == 12:
+                result = result.replace(year=result.year + 1, month=1)
+            else:
+                result = result.replace(month=result.month + 1)
+            return result.strftime("%Y-%m-%dT12:00")
+        
+        return None
+    
+    def parse_day_of_week(self, text: str, base_date: datetime) -> Optional[str]:
+        """曜日指定を解析"""
+        from datetime import timedelta
+        
+        day_names = {
+            '月曜': 0, '月曜日': 0, 'げつよう': 0,
+            '火曜': 1, '火曜日': 1, 'かよう': 1,
+            '水曜': 2, '水曜日': 2, 'すいよう': 2,
+            '木曜': 3, '木曜日': 3, 'もくよう': 3,
+            '金曜': 4, '金曜日': 4, 'きんよう': 4,
+            '土曜': 5, '土曜日': 5, 'どよう': 5,
+            '日曜': 6, '日曜日': 6, 'にちよう': 6
+        }
+        
+        text_lower = text.lower()
+        
+        for day, target_day in day_names.items():
+            if day in text_lower:
+                result = base_date
+                current_day = result.weekday()
+                days_to_add = target_day - current_day
+                
+                # 来週の指定がある場合は7日追加
+                if '来週' in text_lower or 'らいしゅう' in text_lower:
+                    days_to_add += 7
+                elif days_to_add <= 0:
+                    # 今週の指定で既に過ぎている場合は来週
+                    days_to_add += 7
+                
+                result = result + timedelta(days=days_to_add)
+                return result.strftime("%Y-%m-%dT12:00")
+        
+        return None
+    
+    def parse_absolute_date(self, text: str, base_date: datetime) -> Optional[str]:
+        """絶対日付表現を解析"""
         date_patterns = [
             r'(\d{1,2})月(\d{1,2})日',
             r'(\d{1,2})/(\d{1,2})',
@@ -32,7 +129,7 @@ class ShibuTaskAgent:
             r'(\d{4})年(\d{1,2})月(\d{1,2})日'
         ]
         
-        current_year = datetime.now().year
+        current_year = base_date.year
         
         for pattern in date_patterns:
             match = re.search(pattern, text)
@@ -40,15 +137,16 @@ class ShibuTaskAgent:
                 groups = match.groups()
                 if len(groups) == 2:  # 月日のみ
                     month, day = int(groups[0]), int(groups[1])
-                    return f"{current_year}-{month:02d}-{day:02d}T12:00"
+                    # 妥当性チェック
+                    if 1 <= month <= 12 and 1 <= day <= 31:
+                        return f"{current_year}-{month:02d}-{day:02d}T12:00"
                 elif len(groups) == 3:  # 年月日
                     year, month, day = int(groups[0]), int(groups[1]), int(groups[2])
-                    return f"{year}-{month:02d}-{day:02d}T12:00"
+                    # 妥当性チェック
+                    if 2020 <= year <= 2030 and 1 <= month <= 12 and 1 <= day <= 31:
+                        return f"{year}-{month:02d}-{day:02d}T12:00"
         
-        # デフォルトは今日から1週間後
-        from datetime import timedelta
-        default_date = datetime.now() + timedelta(days=7)
-        return default_date.strftime("%Y-%m-%dT12:00")
+        return None
     
     def extract_link_label(self, text: str) -> str:
         """テキストからリンクラベルを抽出"""

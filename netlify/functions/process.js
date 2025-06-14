@@ -25,6 +25,108 @@ class ShibuTaskAgent {
     }
 
     parseDate(text) {
+        const today = new Date();
+        today.setHours(12, 0, 0, 0); // 12:00に設定
+        
+        // 相対日付パターンの処理（優先）
+        const relativeDateMatch = this.parseRelativeDate(text, today);
+        if (relativeDateMatch) {
+            return relativeDateMatch;
+        }
+
+        // 絶対日付パターンの処理
+        const absoluteDateMatch = this.parseAbsoluteDate(text, today);
+        if (absoluteDateMatch) {
+            return absoluteDateMatch;
+        }
+
+        // デフォルトは今日から1週間後
+        const defaultDate = new Date(today);
+        defaultDate.setDate(defaultDate.getDate() + 7);
+        return defaultDate.toISOString().substring(0, 16);
+    }
+
+    parseRelativeDate(text, baseDate) {
+        const textLower = text.toLowerCase();
+        const result = new Date(baseDate);
+
+        // 今日・明日・明後日
+        if (textLower.includes('今日') || textLower.includes('きょう')) {
+            return result.toISOString().substring(0, 16);
+        }
+        
+        if (textLower.includes('明日') || textLower.includes('あした') || textLower.includes('あす')) {
+            result.setDate(result.getDate() + 1);
+            return result.toISOString().substring(0, 16);
+        }
+        
+        if (textLower.includes('明後日') || textLower.includes('あさって')) {
+            result.setDate(result.getDate() + 2);
+            return result.toISOString().substring(0, 16);
+        }
+
+        // 曜日指定
+        const dayOfWeekMatch = this.parseDayOfWeek(text, baseDate);
+        if (dayOfWeekMatch) {
+            return dayOfWeekMatch;
+        }
+
+        // 週単位の指定
+        if (textLower.includes('来週') || textLower.includes('らいしゅう')) {
+            result.setDate(result.getDate() + 7);
+            return result.toISOString().substring(0, 16);
+        }
+
+        if (textLower.includes('再来週') || textLower.includes('さらいしゅう')) {
+            result.setDate(result.getDate() + 14);
+            return result.toISOString().substring(0, 16);
+        }
+
+        // 月単位の指定
+        if (textLower.includes('来月') || textLower.includes('らいげつ')) {
+            result.setMonth(result.getMonth() + 1);
+            return result.toISOString().substring(0, 16);
+        }
+
+        return null;
+    }
+
+    parseDayOfWeek(text, baseDate) {
+        const dayNames = {
+            '月曜': 1, '月曜日': 1, 'げつよう': 1,
+            '火曜': 2, '火曜日': 2, 'かよう': 2,
+            '水曜': 3, '水曜日': 3, 'すいよう': 3,
+            '木曜': 4, '木曜日': 4, 'もくよう': 4,
+            '金曜': 5, '金曜日': 5, 'きんよう': 5,
+            '土曜': 6, '土曜日': 6, 'どよう': 6,
+            '日曜': 0, '日曜日': 0, 'にちよう': 0
+        };
+
+        const textLower = text.toLowerCase();
+        
+        for (const [day, targetDay] of Object.entries(dayNames)) {
+            if (textLower.includes(day)) {
+                const result = new Date(baseDate);
+                const currentDay = result.getDay();
+                let daysToAdd = targetDay - currentDay;
+                
+                // 来週の指定がある場合は7日追加
+                if (textLower.includes('来週') || textLower.includes('らいしゅう')) {
+                    daysToAdd += 7;
+                } else if (daysToAdd <= 0) {
+                    // 今週の指定で既に過ぎている場合は来週
+                    daysToAdd += 7;
+                }
+                
+                result.setDate(result.getDate() + daysToAdd);
+                return result.toISOString().substring(0, 16);
+            }
+        }
+
+        return null;
+    }
+
+    parseAbsoluteDate(text, baseDate) {
         const datePatterns = [
             /(\d{1,2})月(\d{1,2})日/,
             /(\d{1,2})\/(\d{1,2})/,
@@ -32,7 +134,7 @@ class ShibuTaskAgent {
             /(\d{4})年(\d{1,2})月(\d{1,2})日/
         ];
 
-        const currentYear = new Date().getFullYear();
+        const currentYear = baseDate.getFullYear();
 
         for (const pattern of datePatterns) {
             const match = text.match(pattern);
@@ -40,20 +142,25 @@ class ShibuTaskAgent {
                 if (match.length === 3) { // 月日のみ
                     const month = parseInt(match[1]);
                     const day = parseInt(match[2]);
-                    return `${currentYear}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T12:00`;
+                    
+                    // 妥当性チェック
+                    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+                        return `${currentYear}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T12:00`;
+                    }
                 } else if (match.length === 4) { // 年月日
                     const year = parseInt(match[1]);
                     const month = parseInt(match[2]);
                     const day = parseInt(match[3]);
-                    return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T12:00`;
+                    
+                    // 妥当性チェック
+                    if (year >= 2020 && year <= 2030 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+                        return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T12:00`;
+                    }
                 }
             }
         }
 
-        // デフォルトは今日から1週間後
-        const defaultDate = new Date();
-        defaultDate.setDate(defaultDate.getDate() + 7);
-        return defaultDate.toISOString().substring(0, 16);
+        return null;
     }
 
     extractLinkLabel(text) {
