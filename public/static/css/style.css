@@ -366,8 +366,27 @@ body {
 
 /* Dark Mode Styles */
 .dark-mode body {
-    background-color: var(--dark-bg);
+    background-color: var(--dark-bg) !important;
     color: var(--dark-text);
+}
+
+/* ダークモード時の全体コンテナ */
+.dark-mode .container-fluid {
+    background-color: var(--dark-bg);
+}
+
+/* ダークモード時のメインアプリケーション領域 */
+.dark-mode #mainApp {
+    background-color: var(--dark-bg);
+}
+
+/* ダークモード時の行とページ全体 */
+.dark-mode .row {
+    background-color: transparent;
+}
+
+.dark-mode html {
+    background-color: var(--dark-bg) !important;
 }
 
 .dark-mode .card {
@@ -545,4 +564,70 @@ body {
 
 .dark-mode .opacity-75 {
     opacity: 0.8 !important;
+}
+
+/* ダークモード時のカード外側余白 */
+.dark-mode .col-md-6 {
+    background-color: transparent;
+}
+
+.dark-mode .mb-4 {
+    background-color: transparent;
+}
+
+/* ダークモード時のBootstrapのコンテナクラス */
+.dark-mode .container,
+.dark-mode .container-fluid,
+.dark-mode .container-sm,
+.dark-mode .container-md,
+.dark-mode .container-lg,
+.dark-mode .container-xl {
+    background-color: var(--dark-bg);
+}
+
+/* ダークモード時のBootstrapグリッドシステム */
+.dark-mode [class*="col-"] {
+    background-color: transparent;
+}
+
+/* ダークモード時のアウトラインボタン */
+.dark-mode .btn-outline-light {
+    color: var(--dark-text);
+    border-color: rgba(255, 255, 255, 0.3);
+    background-color: transparent;
+}
+
+.dark-mode .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: var(--dark-text);
+}
+
+.dark-mode .btn-outline-primary {
+    color: var(--dark-primary-color);
+    border-color: var(--dark-primary-color);
+}
+
+.dark-mode .btn-outline-primary:hover {
+    background-color: var(--dark-primary-color);
+    border-color: var(--dark-primary-color);
+    color: var(--dark-text);
+}
+
+/* ダークモード時のスクロール全体 */
+.dark-mode ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dark-mode ::-webkit-scrollbar-track {
+    background: var(--dark-card-bg);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: #777;
 }
