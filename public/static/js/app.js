@@ -12,6 +12,7 @@ class ShibuTaskApp {
     init() {
         console.log('init() called');  // デバッグ用
         this.checkLoginStatus();
+        this.initDarkMode(); // ダークモード初期化を追加
         this.bindEvents();
         console.log('bindEvents() completed');  // デバッグ用
         this.initSpeechRecognition();
@@ -19,6 +20,50 @@ class ShibuTaskApp {
         if (this.currentUser) {
             this.loadTasks();
             console.log('loadTasks() completed');  // デバッグ用
+        }
+    }
+
+    // ダークモード初期化メソッドを追加
+    initDarkMode() {
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+        
+        // 保存されたテーマ設定を読み込み
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            this.updateThemeIcon(true);
+        } else {
+            body.classList.remove('dark-mode');
+            this.updateThemeIcon(false);
+        }
+
+        // ダークモードトグルボタンのイベントリスナー
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                const isDarkMode = body.classList.contains('dark-mode');
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                this.updateThemeIcon(isDarkMode);
+            });
+        }
+    }
+
+    // テーマアイコン更新メソッドを追加
+    updateThemeIcon(isDark) {
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const toggleIcon = darkModeToggle ? darkModeToggle.querySelector('i') : null;
+        const moonClass = 'fa-moon';
+        const sunClass = 'fa-sun';
+
+        if (toggleIcon) {
+            if (isDark) {
+                toggleIcon.classList.remove(moonClass);
+                toggleIcon.classList.add(sunClass);
+            } else {
+                toggleIcon.classList.remove(sunClass);
+                toggleIcon.classList.add(moonClass);
+            }
         }
     }
 
@@ -621,45 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Error initializing ShibuTaskApp:', error);  // デバッグ用
     }
 
-    // Dark Mode Toggle Logic
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    const body = document.body;
-    const toggleIcon = darkModeToggle ? darkModeToggle.querySelector('i') : null; // Get the <i> element
-    const moonClass = 'fa-moon';
-    const sunClass = 'fa-sun';
-
-    // Function to update icon based on theme
-    function updateThemeIcon(isDark) {
-        if (toggleIcon) {
-            if (isDark) {
-                toggleIcon.classList.remove(moonClass);
-                toggleIcon.classList.add(sunClass);
-            } else {
-                toggleIcon.classList.remove(sunClass);
-                toggleIcon.classList.add(moonClass);
-            }
-        }
-    }
-
-    // Load saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        body.classList.add('dark-mode');
-        updateThemeIcon(true);
-    } else {
-        body.classList.remove('dark-mode'); // Ensure light mode if no preference or 'light'
-        updateThemeIcon(false);
-    }
-
-    // Event listener for toggle button
-    if (darkModeToggle) {
-        darkModeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            const isDarkMode = body.classList.contains('dark-mode');
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-            updateThemeIcon(isDarkMode);
-        });
-    }
+    // ダークモード機能はShibuTaskAppクラス内で管理されます
 });
 
 // サービスワーカー登録（PWA化用、オプション）

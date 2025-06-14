@@ -390,7 +390,7 @@ body {
 
 .dark-mode .form-control:focus {
     border-color: var(--dark-primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(var(--dark-primary-color), 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(90, 82, 224, 0.3);
 }
 
 .dark-mode .task-card {
@@ -442,12 +442,12 @@ body {
 
 .dark-mode #loginScreen .form-control:focus {
     border-color: var(--dark-primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(var(--dark-primary-color), 0.3);
+    box-shadow: 0 0 0 0.2rem rgba(90, 82, 224, 0.3);
 }
 
 .dark-mode #loginScreen .btn-primary {
     background: linear-gradient(135deg, var(--dark-primary-color), var(--dark-secondary-color));
-    box-shadow: 0 8px 25px rgba(var(--dark-primary-color), 0.4);
+    box-shadow: 0 8px 25px rgba(90, 82, 224, 0.4);
 }
 
 /* Task Checkbox Dark Mode */
@@ -509,4 +509,40 @@ body {
     background-color: #dc3545; /* A common darker shade for Bootstrap's btn-danger hover */
     border-color: #dc3545;
     color: var(--dark-text);
+}
+
+/* Dark Mode Header */
+.dark-mode .bg-gradient-primary {
+    background: linear-gradient(135deg, var(--dark-primary-color), var(--dark-secondary-color));
+}
+
+/* Dark Mode Text Improvements */
+.dark-mode .text-muted {
+    color: #999 !important;
+}
+
+.dark-mode .badge.bg-light {
+    background-color: #4a4a4a !important;
+    color: var(--dark-text) !important;
+}
+
+/* Dark Mode Additional Improvements */
+.dark-mode .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.3);
+}
+
+.dark-mode .task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
+.dark-mode .alert-info {
+    background-color: rgba(90, 82, 224, 0.1);
+    border-color: var(--dark-primary-color);
+    color: var(--dark-text);
+}
+
+.dark-mode .opacity-75 {
+    opacity: 0.8 !important;
 }
