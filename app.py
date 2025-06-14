@@ -8,7 +8,7 @@ from flask import Flask, render_template, request, jsonify, Response
 from shibu_task_agent import ShibuTaskAgent
 import json
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='public/static')
 app.config['JSON_AS_ASCII'] = False  # 日本語をUnicodeエスケープしない
 agent = ShibuTaskAgent()
 
