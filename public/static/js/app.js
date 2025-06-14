@@ -620,6 +620,46 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (error) {
         console.error('Error initializing ShibuTaskApp:', error);  // デバッグ用
     }
+
+    // Dark Mode Toggle Logic
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const body = document.body;
+    const toggleIcon = darkModeToggle ? darkModeToggle.querySelector('i') : null; // Get the <i> element
+    const moonClass = 'fa-moon';
+    const sunClass = 'fa-sun';
+
+    // Function to update icon based on theme
+    function updateThemeIcon(isDark) {
+        if (toggleIcon) {
+            if (isDark) {
+                toggleIcon.classList.remove(moonClass);
+                toggleIcon.classList.add(sunClass);
+            } else {
+                toggleIcon.classList.remove(sunClass);
+                toggleIcon.classList.add(moonClass);
+            }
+        }
+    }
+
+    // Load saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-mode');
+        updateThemeIcon(true);
+    } else {
+        body.classList.remove('dark-mode'); // Ensure light mode if no preference or 'light'
+        updateThemeIcon(false);
+    }
+
+    // Event listener for toggle button
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDarkMode = body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            updateThemeIcon(isDarkMode);
+        });
+    }
 });
 
 // サービスワーカー登録（PWA化用、オプション）

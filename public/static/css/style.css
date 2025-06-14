@@ -8,6 +8,14 @@
     --danger-color: #ef4444;
     --light-bg: #f8fafc;
     --border-color: #e2e8f0;
+
+    /* Dark Mode Colors */
+    --dark-bg: #1a1a1a;
+    --dark-text: #f0f0f0;
+    --dark-border-color: #333333;
+    --dark-card-bg: #2a2a2a;
+    --dark-primary-color: #5a52e0; /* Slightly adjusted for dark bg */
+    --dark-secondary-color: #7073f8; /* Slightly adjusted for dark bg */
 }
 
 body {
@@ -354,4 +362,113 @@ body {
 
 .task-completed-animation {
     animation: completionPulse 0.5s ease;
-} 
+}
+
+/* Dark Mode Styles */
+.dark-mode body {
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+}
+
+.dark-mode .card {
+    background-color: var(--dark-card-bg);
+    border-color: var(--dark-border-color);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2); /* Adjusted shadow for dark mode */
+}
+
+.dark-mode .card-header {
+    border-bottom: 1px solid var(--dark-border-color);
+}
+
+.dark-mode .form-control {
+    background-color: var(--dark-card-bg); /* Using card bg for inputs */
+    color: var(--dark-text);
+    border-color: var(--dark-border-color);
+}
+
+.dark-mode .form-control:focus {
+    border-color: var(--dark-primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--dark-primary-color), 0.25);
+}
+
+.dark-mode .task-card {
+    background-color: var(--dark-card-bg);
+    border-left-color: var(--dark-primary-color);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Adjusted shadow */
+}
+
+.dark-mode .task-card.completed {
+    background-color: #2c3e50; /* Darker completed background */
+    border-left-color: var(--success-color); /* Keep success color for completed tasks */
+    opacity: 0.8;
+}
+
+.dark-mode .task-card.pending {
+    background-color: #3a3a3a; /* Slightly different bg for pending */
+    border-left-color: var(--warning-color); /* Keep warning color */
+}
+
+.dark-mode .task-title {
+    color: var(--dark-text);
+}
+
+.dark-mode .task-meta {
+    color: #a0a0a0; /* Lighter gray for meta text */
+}
+
+.dark-mode .completed-text {
+    color: #a0a0a0; /* Lighter gray for completed text */
+}
+
+
+/* Login Screen Dark Mode */
+.dark-mode #loginScreen {
+    background: linear-gradient(135deg, var(--dark-bg), #2c3e50); /* Dark gradient */
+}
+
+.dark-mode #loginScreen .card {
+    background: rgba(42, 42, 42, 0.9); /* Darker, semi-transparent card */
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--dark-border-color);
+}
+
+.dark-mode #loginScreen .form-control {
+    background-color: #3a3a3a; /* Specific input background for login */
+    color: var(--dark-text);
+    border-color: var(--dark-border-color);
+}
+
+.dark-mode #loginScreen .form-control:focus {
+    border-color: var(--dark-primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--dark-primary-color), 0.3);
+}
+
+.dark-mode #loginScreen .btn-primary {
+    background: linear-gradient(135deg, var(--dark-primary-color), var(--dark-secondary-color));
+    box-shadow: 0 8px 25px rgba(var(--dark-primary-color), 0.4);
+}
+
+/* Task Checkbox Dark Mode */
+.dark-mode .task-checkbox-label {
+    background: var(--dark-card-bg);
+    border-color: var(--dark-border-color);
+}
+
+.dark-mode .task-checkbox:checked + .task-checkbox-label {
+    background: linear-gradient(135deg, var(--success-color), #22c55e); /* Keep success gradient */
+    border-color: var(--success-color);
+}
+
+.dark-mode .task-checkbox-label:hover {
+    border-color: var(--dark-primary-color);
+}
+
+.dark-mode .status-pending {
+    background-color: #4a4a4a;
+    color: #f59e0b; /* Keep warning text color for visibility */
+}
+
+.dark-mode .status-completed {
+    background-color: #2c3e50;
+    color: #10b981; /* Keep success text color for visibility */
+}
