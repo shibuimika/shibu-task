@@ -390,15 +390,20 @@ body {
 }
 
 .dark-mode .card {
-    background-color: var(--dark-card-bg);
+    background-color: var(--dark-card-bg) !important;
     border-color: var(--dark-border-color);
     box-shadow: 0 8px 25px rgba(0,0,0,0.2); /* Adjusted shadow for dark mode */
 }
 
 .dark-mode .card-header {
-    background-color: var(--dark-card-bg);
+    background-color: var(--dark-card-bg) !important;
     color: var(--dark-text);
     border-bottom: 1px solid var(--dark-border-color); /* Ensure border color is also consistent */
+}
+
+.dark-mode .card-body {
+    background-color: var(--dark-card-bg) !important;
+    color: var(--dark-text);
 }
 
 .dark-mode .form-control {
@@ -535,10 +540,7 @@ body {
     background: linear-gradient(135deg, var(--dark-primary-color), var(--dark-secondary-color));
 }
 
-/* Dark Mode Text Improvements */
-.dark-mode .text-muted {
-    color: #999 !important;
-}
+/* Dark Mode Text Improvements - moved to consolidated section above */
 
 .dark-mode .badge.bg-light {
     background-color: #4a4a4a !important;
@@ -630,4 +632,25 @@ body {
 
 .dark-mode ::-webkit-scrollbar-thumb:hover {
     background: #777;
+}
+
+/* ダークモード時のBootstrap bg-lightクラス上書き */
+.dark-mode .bg-light {
+    background-color: var(--dark-card-bg) !important;
+    color: var(--dark-text) !important;
+}
+
+/* ダークモード時のBootstrap text-mutedクラス上書き */
+.dark-mode .text-muted {
+    color: #999 !important;
+}
+
+/* ダークモード時の全てのBootstrapカード関連クラス */
+.dark-mode .card,
+.dark-mode .card-header,
+.dark-mode .card-body,
+.dark-mode .card-footer {
+    background-color: var(--dark-card-bg) !important;
+    color: var(--dark-text) !important;
+    border-color: var(--dark-border-color) !important;
 }
