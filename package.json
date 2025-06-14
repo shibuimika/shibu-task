@@ -1,0 +1,20 @@
+{
+  "name": "shibu-task-agent",
+  "version": "1.0.0",
+  "description": "音声入力対応タスク管理エージェント",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'Build complete'",
+    "start": "echo 'Start complete'"
+  },
+  "keywords": [
+    "task-management",
+    "voice-recognition",
+    "netlify",
+    "serverless"
+  ],
+  "author": "jokerjunya",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+} 

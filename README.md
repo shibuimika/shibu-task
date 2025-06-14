@@ -65,6 +65,7 @@
 
 ### 🛠️ **技術者向け詳細セットアップ**
 
+#### 📱 **ローカル開発（Flask版）**
 ```bash
 # 1. プロジェクトをクローン
 git clone https://github.com/jokerjunya/shibu-task.git
@@ -81,10 +82,16 @@ pip install -r requirements.txt
 python3 app.py
 ```
 
-### 🌐 **ブラウザでアクセス**
+#### 🌐 **Netlify（本番環境）**
+```bash
+# Netlify にデプロイ
+# publicディレクトリが自動的にホスティングされます
+# Netlify Functionsが /api/* のエンドポイントとして動作
 ```
-http://localhost:8080
-```
+
+### 🌐 **アクセス方法**
+- **ローカル**: `http://localhost:8080`
+- **本番**: Netlifyデプロイ後のURL
 
 ---
 

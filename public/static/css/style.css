@@ -1,0 +1,182 @@
+/* ShibuTaskAgent Custom Styles */
+
+:root {
+    --primary-color: #4f46e5;
+    --secondary-color: #6366f1;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --light-bg: #f8fafc;
+    --border-color: #e2e8f0;
+}
+
+body {
+    background-color: var(--light-bg);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+}
+
+/* Task Cards */
+.task-card {
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.task-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.task-card.completed {
+    border-left-color: var(--success-color);
+    background-color: #f0fdf4;
+}
+
+.task-card.pending {
+    border-left-color: var(--warning-color);
+    background-color: #fffbeb;
+}
+
+.task-title {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.task-meta {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.task-link {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.link-powerpoint { background-color: #d97706; color: white; }
+.link-word { background-color: #2563eb; color: white; }
+.link-excel { background-color: #059669; color: white; }
+.link-outlook { background-color: #dc2626; color: white; }
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-completed {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+/* Voice Input Animation */
+.voice-recording {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Loading Animation */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 15px;
+    }
+    
+    header {
+        padding: 20px !important;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+    
+    .task-card {
+        padding: 12px;
+    }
+}
+
+/* Custom Animations */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+} 

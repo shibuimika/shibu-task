@@ -36,4 +36,12 @@ instance/
 *.temp
 
 # OS generated files
-Thumbs.db 
+Thumbs.db
+
+# Netlify
+.netlify/
+dist/
+node_modules/
+
+# Build output
+build/ 
