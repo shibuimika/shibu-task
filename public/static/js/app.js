@@ -5,42 +5,74 @@ class ShibuTaskApp {
         console.log('ShibuTaskApp constructor called');  // デバッグ用
         this.recognition = null;
         this.isRecording = false;
+        this.currentUser = null;
         this.init();
     }
 
     init() {
         console.log('init() called');  // デバッグ用
+        this.checkLoginStatus();
         this.bindEvents();
         console.log('bindEvents() completed');  // デバッグ用
         this.initSpeechRecognition();
         console.log('initSpeechRecognition() completed');  // デバッグ用
-        this.loadTasks();
-        console.log('loadTasks() completed');  // デバッグ用
+        if (this.currentUser) {
+            this.loadTasks();
+            console.log('loadTasks() completed');  // デバッグ用
+        }
     }
 
     bindEvents() {
+        // ログインフォーム
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.login();
+            });
+        }
+
+        // ログアウトボタン
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                this.logout();
+            });
+        }
+
         // 処理実行ボタン
         const processBtn = document.getElementById('processBtn');
-        console.log('Binding events - processBtn found:', processBtn !== null);  // デバッグ用
-        processBtn.addEventListener('click', () => {
-            console.log('Process button clicked');  // デバッグ用
-            this.processInput();
-        });
+        if (processBtn) {
+            console.log('Binding events - processBtn found:', processBtn !== null);  // デバッグ用
+            processBtn.addEventListener('click', () => {
+                console.log('Process button clicked');  // デバッグ用
+                this.processInput();
+            });
+        }
 
         // 音声入力ボタン
-        document.getElementById('voiceBtn').addEventListener('click', () => {
-            this.toggleVoiceInput();
-        });
+        const voiceBtn = document.getElementById('voiceBtn');
+        if (voiceBtn) {
+            voiceBtn.addEventListener('click', () => {
+                this.toggleVoiceInput();
+            });
+        }
 
         // リセットボタン
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            this.resetTasks();
-        });
+        const resetBtn = document.getElementById('resetBtn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                this.resetTasks();
+            });
+        }
 
         // 更新ボタン
-        document.getElementById('refreshBtn').addEventListener('click', () => {
-            this.loadTasks();
-        });
+        const refreshBtn = document.getElementById('refreshBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.loadTasks();
+            });
+        }
 
         // Enterキーで処理実行
         document.getElementById('userInput').addEventListener('keydown', (e) => {
@@ -151,7 +183,10 @@ class ShibuTaskApp {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ input: input })
+                body: JSON.stringify({ 
+                    input: input,
+                    user: this.currentUser ? this.currentUser.username : 'anonymous'
+                })
             });
 
             console.log('Response status:', response.status);  // デバッグ用
@@ -185,7 +220,7 @@ class ShibuTaskApp {
 
     async loadTasks() {
         try {
-            const response = await fetch('/api/tasks');
+            const response = await fetch(`/api/tasks?user=${this.currentUser ? this.currentUser.username : 'anonymous'}`);
             const tasks = await response.json();
             this.displayTasks(tasks);
         } catch (error) {
@@ -306,6 +341,73 @@ class ShibuTaskApp {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    // ===== ログイン管理メソッド =====
+    checkLoginStatus() {
+        console.log('Checking login status...');
+        const savedUser = localStorage.getItem('shibu_task_user');
+        
+        if (savedUser) {
+            this.currentUser = JSON.parse(savedUser);
+            this.showMainApp();
+            console.log('User logged in:', this.currentUser.username);
+        } else {
+            this.showLoginScreen();
+            console.log('No user logged in');
+        }
+    }
+
+    login() {
+        const usernameInput = document.getElementById('username');
+        const username = usernameInput.value.trim();
+
+        if (!username) {
+            alert('ユーザー名を入力してください');
+            return;
+        }
+
+        // 簡易ユーザー情報を作成
+        this.currentUser = {
+            username: username,
+            loginTime: new Date().toISOString()
+        };
+
+        // ローカルストレージに保存
+        localStorage.setItem('shibu_task_user', JSON.stringify(this.currentUser));
+
+        console.log('User logged in:', username);
+        this.showMainApp();
+        this.loadTasks();
+    }
+
+    logout() {
+        if (confirm('ログアウトしますか？')) {
+            localStorage.removeItem('shibu_task_user');
+            this.currentUser = null;
+            console.log('User logged out');
+            this.showLoginScreen();
+        }
+    }
+
+    showLoginScreen() {
+        document.getElementById('loginScreen').classList.remove('d-none');
+        document.getElementById('mainApp').classList.add('d-none');
+        
+        // フォームをクリア
+        const usernameInput = document.getElementById('username');
+        if (usernameInput) usernameInput.value = '';
+    }
+
+    showMainApp() {
+        document.getElementById('loginScreen').classList.add('d-none');
+        document.getElementById('mainApp').classList.remove('d-none');
+        
+        // ユーザー情報を表示
+        const userInfo = document.getElementById('userInfo');
+        if (userInfo && this.currentUser) {
+            userInfo.textContent = `👤 ${this.currentUser.username}`;
+        }
     }
 }
 

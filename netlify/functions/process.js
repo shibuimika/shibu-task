@@ -1,15 +1,23 @@
 // Netlify Functions - タスク処理API
 class ShibuTaskAgent {
     constructor() {
-        this.tasks = [];
+        this.userTasks = {}; // ユーザー別タスク管理
         this.nextId = 1;
     }
 
-    getNextId() {
-        if (!this.tasks || this.tasks.length === 0) {
+    getUserTasks(username) {
+        if (!this.userTasks[username]) {
+            this.userTasks[username] = [];
+        }
+        return this.userTasks[username];
+    }
+
+    getNextId(username) {
+        const tasks = this.getUserTasks(username);
+        if (!tasks || tasks.length === 0) {
             return 1;
         }
-        return Math.max(...this.tasks.map(task => task.id)) + 1;
+        return Math.max(...tasks.map(task => task.id)) + 1;
     }
 
     parseDate(text) {
@@ -92,8 +100,9 @@ class ShibuTaskAgent {
         return completionKeywords.some(keyword => text.includes(keyword));
     }
 
-    findTaskToComplete(text) {
-        const incompleteTasks = this.tasks.filter(task => task.status === '未着手');
+    findTaskToComplete(text, username) {
+        const tasks = this.getUserTasks(username);
+        const incompleteTasks = tasks.filter(task => task.status === '未着手');
 
         const textLower = text.toLowerCase();
         for (const task of incompleteTasks) {
@@ -139,9 +148,11 @@ class ShibuTaskAgent {
         return cleanedText || "新しいタスク";
     }
 
-    processInput(userInput) {
+    processInput(userInput, username = 'anonymous') {
+        const tasks = this.getUserTasks(username);
+        
         if (this.isTaskCompletion(userInput)) {
-            const taskToComplete = this.findTaskToComplete(userInput);
+            const taskToComplete = this.findTaskToComplete(userInput, username);
             if (taskToComplete) {
                 taskToComplete.status = '完了';
             }
@@ -151,17 +162,18 @@ class ShibuTaskAgent {
             const linkLabel = this.extractLinkLabel(userInput);
 
             const newTask = {
-                id: this.getNextId(),
+                id: this.getNextId(username),
                 title: title,
                 due: dueDate,
                 link: linkLabel,
-                status: '未着手'
+                status: '未着手',
+                user: username
             };
 
-            this.tasks.push(newTask);
+            tasks.push(newTask);
         }
 
-        return this.tasks;
+        return tasks;
     }
 }
 
@@ -188,7 +200,7 @@ exports.handler = async (event, context) => {
         const agent = new ShibuTaskAgent();
         
         if (event.httpMethod === 'POST') {
-            const { input } = JSON.parse(event.body);
+            const { input, user } = JSON.parse(event.body);
             
             if (!input) {
                 return {
@@ -198,7 +210,8 @@ exports.handler = async (event, context) => {
                 };
             }
 
-            const tasks = agent.processInput(input);
+            const username = user || 'anonymous';
+            const tasks = agent.processInput(input, username);
             
             return {
                 statusCode: 200,
@@ -212,10 +225,13 @@ exports.handler = async (event, context) => {
         }
 
         // GET リクエスト（タスク一覧取得）
+        const queryUser = event.queryStringParameters?.user || 'anonymous';
+        const userTasks = agent.getUserTasks(queryUser);
+        
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify(agent.tasks)
+            body: JSON.stringify(userTasks)
         };
 
     } catch (error) {

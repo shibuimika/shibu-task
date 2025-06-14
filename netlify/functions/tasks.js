@@ -18,8 +18,10 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        // 一時的にローカルストレージから取得（実際はデータベースを使用）
-        // ここではサンプルデータを返却
+        // ユーザー別タスク取得（process.jsと同期）
+        const user = event.queryStringParameters?.user || 'anonymous';
+        
+        // 一時的にサンプルデータを返却（実際はデータベースから取得）
         const sampleTasks = [];
         
         return {

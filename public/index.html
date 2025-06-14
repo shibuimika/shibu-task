@@ -8,8 +8,48 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="/static/css/style.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container-fluid">
+  <body>
+    <!-- ログイン画面 -->
+    <div id="loginScreen" class="d-none">
+        <div class="container">
+            <div class="row justify-content-center align-items-center min-vh-100">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card shadow-lg">
+                        <div class="card-body p-5">
+                            <div class="text-center mb-4">
+                                <i class="fas fa-robot fa-3x text-primary mb-3"></i>
+                                <h2 class="card-title">ShibuTaskAgent</h2>
+                                <p class="text-muted">音声入力対応タスク管理</p>
+                            </div>
+                            
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">ユーザー名</label>
+                                    <input type="text" class="form-control form-control-lg" id="username" 
+                                           placeholder="お名前を入力してください" required>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-sign-in-alt me-2"></i>ログイン
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <div class="mt-4 text-center">
+                                <small class="text-muted">
+                                    🎤 音声でタスク管理を始めましょう！
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- メインアプリケーション -->
+    <div id="mainApp" class="container-fluid">
         <div class="row">
             <!-- Header -->
             <div class="col-12">
@@ -17,11 +57,19 @@
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <h1 class="mb-0"><i class="fas fa-robot me-2"></i>ShibuTaskAgent</h1>
-                            <p class="mb-0 opacity-75">音声入力対応タスク管理エージェント</p>
+                            <p class="mb-0 opacity-75">
+                                音声入力対応タスク管理エージェント
+                                <span id="userInfo" class="badge bg-light text-dark ms-2"></span>
+                            </p>
                         </div>
-                        <button id="resetBtn" class="btn btn-outline-light">
-                            <i class="fas fa-refresh me-1"></i>リセット
-                        </button>
+                        <div>
+                            <button id="resetBtn" class="btn btn-outline-light me-2">
+                                <i class="fas fa-refresh me-1"></i>リセット
+                            </button>
+                            <button id="logoutBtn" class="btn btn-outline-light">
+                                <i class="fas fa-sign-out-alt me-1"></i>ログアウト
+                            </button>
+                        </div>
                     </div>
                 </header>
             </div>
@@ -104,6 +152,7 @@
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </div>
