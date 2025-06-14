@@ -199,6 +199,10 @@ class ShibuTaskApp {
             console.log('API Response:', data);  // デバッグ用
 
             if (data.success) {
+                // ローカルストレージに保存
+                const username = this.currentUser ? this.currentUser.username : 'anonymous';
+                this.saveLocalTasks(username, data.tasks);
+                
                 if (isVoiceInput) {
                     this.showProcessResult(`🎉 音声からタスクが追加されました！ "${data.processed_input}"`);
                 } else {
@@ -220,11 +224,29 @@ class ShibuTaskApp {
 
     async loadTasks() {
         try {
-            const response = await fetch(`/api/tasks?user=${this.currentUser ? this.currentUser.username : 'anonymous'}`);
-            const tasks = await response.json();
-            this.displayTasks(tasks);
+            // まずローカルストレージから読み込み
+            const username = this.currentUser ? this.currentUser.username : 'anonymous';
+            const localTasks = this.getLocalTasks(username);
+            
+            if (localTasks && localTasks.length > 0) {
+                this.displayTasks(localTasks);
+                console.log('Tasks loaded from local storage:', localTasks.length);
+            } else {
+                // ローカルにない場合はAPIから取得
+                const response = await fetch(`/api/tasks?user=${username}`);
+                const tasks = await response.json();
+                this.displayTasks(tasks);
+                console.log('Tasks loaded from API:', tasks.length);
+            }
         } catch (error) {
             console.error('タスク読み込みエラー:', error);
+            // エラーの場合はローカルストレージから復旧を試行
+            const username = this.currentUser ? this.currentUser.username : 'anonymous';
+            const localTasks = this.getLocalTasks(username);
+            if (localTasks) {
+                this.displayTasks(localTasks);
+                console.log('Tasks restored from local storage');
+            }
         }
     }
 
@@ -236,6 +258,10 @@ class ShibuTaskApp {
             const data = await response.json();
 
             if (data.success) {
+                // ローカルストレージもクリア
+                const username = this.currentUser ? this.currentUser.username : 'anonymous';
+                this.clearLocalTasks(username);
+                
                 this.showProcessResult('タスクをリセットしました');
                 this.loadTasks();
             } else {
@@ -407,6 +433,38 @@ class ShibuTaskApp {
         const userInfo = document.getElementById('userInfo');
         if (userInfo && this.currentUser) {
             userInfo.textContent = `👤 ${this.currentUser.username}`;
+        }
+    }
+
+    // ===== ローカルストレージ管理メソッド =====
+    getLocalTasks(username) {
+        try {
+            const key = `shibu_tasks_${username}`;
+            const tasksData = localStorage.getItem(key);
+            return tasksData ? JSON.parse(tasksData) : [];
+        } catch (error) {
+            console.error('Error getting local tasks:', error);
+            return [];
+        }
+    }
+
+    saveLocalTasks(username, tasks) {
+        try {
+            const key = `shibu_tasks_${username}`;
+            localStorage.setItem(key, JSON.stringify(tasks));
+            console.log('Tasks saved to local storage:', tasks.length);
+        } catch (error) {
+            console.error('Error saving local tasks:', error);
+        }
+    }
+
+    clearLocalTasks(username) {
+        try {
+            const key = `shibu_tasks_${username}`;
+            localStorage.removeItem(key);
+            console.log('Local tasks cleared for user:', username);
+        } catch (error) {
+            console.error('Error clearing local tasks:', error);
         }
     }
 }

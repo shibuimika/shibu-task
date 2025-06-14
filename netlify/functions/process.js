@@ -1,7 +1,11 @@
 // Netlify Functions - タスク処理API
+
+// グローバルストレージ（メモリ共有用）
+let globalUserTasks = {};
+
 class ShibuTaskAgent {
     constructor() {
-        this.userTasks = {}; // ユーザー別タスク管理
+        this.userTasks = globalUserTasks; // グローバル変数を参照
         this.nextId = 1;
     }
 
