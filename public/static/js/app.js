@@ -1,3 +1,7 @@
+// Note: This application is implemented using vanilla JavaScript (ES6 classes and direct DOM manipulation).
+// The original issue description mentioned React/useState, but that does not apply to this file.
+// All task management logic herein is handled without React.
+
 // ShibuTaskAgent JavaScript
 
 class ShibuTaskApp {
@@ -207,7 +211,8 @@ class ShibuTaskApp {
         }
     }
 
-        async processInput(isVoiceInput = false) {
+    // processInput should be async
+    async processInput(isVoiceInput = false) {
         console.log('processInput called, isVoiceInput:', isVoiceInput);  // デバッグ用
         const input = document.getElementById('userInput').value.trim();
         console.log('Input value:', input);  // デバッグ用
@@ -244,17 +249,25 @@ class ShibuTaskApp {
             console.log('API Response:', data);  // デバッグ用
 
             if (data.success) {
-                // ローカルストレージに保存
-                const username = this.currentUser ? this.currentUser.username : 'anonymous';
-                this.saveLocalTasks(username, data.tasks);
-                
-                if (isVoiceInput) {
-                    this.showProcessResult(`🎉 音声からタスクが追加されました！ "${data.processed_input}"`);
-                } else {
-                    this.showProcessResult(`処理完了: "${data.processed_input}"`);
-                }
-                this.displayTasks(data.tasks);
+                // Clear input first
                 document.getElementById('userInput').value = '';
+
+                // Show initial success message for the processed input
+                if (isVoiceInput) {
+                    this.showProcessResult(`🎤 音声「${data.processed_input}」を処理しました。タスクリストを更新します...`, 'info');
+                } else {
+                    this.showProcessResult(`⌨️ テキスト「${data.processed_input}」を処理しました。タスクリストを更新します...`, 'info');
+                }
+
+                // Now, load and display all tasks. loadTasks handles calling displayTasks.
+                await this.loadTasks();
+
+                // Optionally, show a final confirmation after tasks are loaded if loadTasks doesn't show one.
+                // For now, assume loadTasks is sufficient or can be updated if needed.
+                // A brief success message after loading might be good.
+                // this.showProcessResult('✅ タスクリストを更新しました。', 'success'); // This might be too quick / overwrite the previous.
+                                                                                // Let's rely on processResult's timeout.
+
             } else {
                 this.showProcessResult(`エラー: ${data.error}`, 'error');
             }
@@ -281,7 +294,9 @@ class ShibuTaskApp {
                 const response = await fetch(`/api/tasks?user=${username}`);
                 const tasks = await response.json();
                 this.displayTasks(tasks);
-                console.log('Tasks loaded from API:', tasks.length);
+                // Missing: save these API tasks to local storage if local was empty
+                this.saveLocalTasks(username, tasks); // This should be added to loadTasks
+                console.log('Tasks loaded from API and saved to local storage:', tasks.length);
             }
         } catch (error) {
             console.error('タスク読み込みエラー:', error);
@@ -290,7 +305,7 @@ class ShibuTaskApp {
             const localTasks = this.getLocalTasks(username);
             if (localTasks) {
                 this.displayTasks(localTasks);
-                console.log('Tasks restored from local storage');
+                console.log('Tasks restored from local storage after error:', localTasks.length);
             }
         }
     }
